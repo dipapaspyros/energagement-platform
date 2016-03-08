@@ -1,0 +1,24 @@
+.designer-toolbar {
+    background: #dcdcdc;
+    padding: 5px;
+    border-bottom: 1px solid #ccc;
+}
+
+.centered {
+    text-align: center;
+    padding: 50px;
+}
+
+.designer-toolbar .fa {
+    color: #777;
+}
+
+.gen-loading-lg {
+    font-size: 200%;
+}
+
+#designer-overview-map-container {
+    width: 100%;
+    height: calc(100vh - 150px);
+    background: #dcdcdc;
+}
