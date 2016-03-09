@@ -91,4 +91,59 @@ $(function() {
 
         }
     });
+
+    function async_form_submit(form, on_success, on_error) {
+        form.find('input[type="submit"]').attr('disabled', 'disabled');
+        DataLoader.set_page_loading();
+
+        // get method & form data
+        var data;
+        var url = form.attr('action');
+        var method = form.attr('method');
+        if (method == 'GET') {
+            data = form.serialize();
+            url += '?' + data;
+        } else {
+            data = new FormData(form[0]);
+        }
+
+        Analytics.on(url, 'pre', 'success');
+        // make the request
+        $.ajax({
+            url   : url,
+            type  : method,
+            data  : data, // data to be submitted
+            async: true,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(data, textStatus, request){
+                on_success(data, textStatus, request)
+            },
+            error: function(xhr, status, error) {
+                on_error(xhr, status, error)
+            }
+        });
+    }
+
+    // asynchronous unit create view
+    $(document).on('submit', '#unit-create-modal form',function(e){
+        var form = $(this);
+        var cf = $('#unit-create-modal');
+
+        // define the callbacks
+        var on_success = function(data, textStatus, request) {
+            cf.modal('hide');
+        };
+
+        var on_error = function(xhr, status, error) {
+            cf.html(xhr.responseText);
+        };
+
+        // submit the form
+        OnOrfiumFormSubmit(form, on_success, on_error);
+
+        e.preventDefault();
+        return false;
+    });
 });

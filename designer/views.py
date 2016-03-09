@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
 
@@ -37,9 +38,17 @@ def overview(request):
     return render(request, 'designer/overview.html', ctx)
 
 
+# render the correct form based on the unit type
 def unit_create_form(request, unit_type):
-    unit_type_label = [ut[1] for ut in UNIT_TYPES if ut[0] == unit_type][0]
-    initial = {}
+    if request.method != 'GET':
+        return HttpResponse('Only GET method is accepted', status=400)
+
+    try:
+        unit_type_label = [ut[1] for ut in UNIT_TYPES if ut[0] == unit_type][0]
+    except IndexError:
+        return HttpResponse('Invalid `unit_type`', status=400)
+
+    initial = {'unit_type': unit_type}
 
     if 'lat' in request.GET and 'lng' in request.GET:
         initial['lat'] = float(request.GET.get('lat'))
@@ -57,6 +66,36 @@ def unit_create_form(request, unit_type):
         'unit_type_label': unit_type_label,
         'form': form,
     })
+
+
+# process the unit create form
+def unit_create(request):
+    if request.method != 'POST':
+        return HttpResponse('Only POST method is accepted', status=400)
+
+    try:
+        unit_type = request.POST('unit_type')
+        unit_type_label = [ut[1] for ut in UNIT_TYPES if ut[0] == unit_type][0]
+    except IndexError:
+        return HttpResponse('Invalid `unit_type`', status=400)
+
+    form = UnitForm(unit_type=unit_type)
+    if form.valid():
+        # save the new unit & return empty response
+        unit = form.save(commit=False)
+        unit.user = request.user
+        unit.save()
+
+        return HttpResponse('')
+    else:
+        # return form with errors
+        c = Context({
+            'unit_type': unit_type,
+            'unit_type_label': unit_type_label,
+            'form': form,
+        })
+        response = mark_safe(loader.get_template('designer/unit/form-create-contents.html', c))
+        return HttpResponse(response, status=400)
 
 
 # A detailed view of a specific unit

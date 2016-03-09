@@ -7,7 +7,7 @@ extra_unit_fields = {
         'surface': forms.FloatField(min_value=0),
     },
     'GENERIC_BUILDING,FACTORY': {
-        'year-of-construction': forms.IntegerField(),
+        'year_of_construction': forms.IntegerField(),
     },
     'FACTORY': {
         'industry': forms.CharField(max_length=255),
@@ -25,7 +25,7 @@ class UnitForm(forms.ModelForm):
         self.extra_fields = []
 
         # make several fields non-visible
-        for fk in ['lat', 'lng', 'address', 'info']:
+        for fk in ['lat', 'lng', 'address', 'info', 'unit_type']:
             self.fields[fk].widget = forms.HiddenInput()
 
         # add the appropriate fields

@@ -10,6 +10,7 @@ urlpatterns = patterns('',
                        url('^(?P<pk>\d+)/details/$', views.details, name='designer-unit-details'),
 
                        # forms
+                       url(r'^unit-create/$', views.unit_create, name='unit-create'),
                        url(r'^unit-create/(?P<unit_type>.*)/$', views.unit_create_form, name='unit-create-form'),
 
                        # api

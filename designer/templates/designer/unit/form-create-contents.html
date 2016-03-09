@@ -9,7 +9,7 @@
             </div>
             <div class="modal-body">
 
-                <form role="form">{% csrf_token %}
+                <form role="form" method="POST" action="{% url 'unit-create' %}">{% csrf_token %}
                     {{ form.non_field_errors }}
 
                     <div class="box-body">
