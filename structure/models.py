@@ -6,16 +6,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from .lists import UNIT_TYPES, SUPPORTED_CONNECTION_TYPES
-
-
-class Location(models.Model):
-    """
-    A location object
-    Contains both co-ordinates as well as a text representation (e.g street name/number, city etc.)
-    """
-    lat = models.IntegerField()
-    lng = models.IntegerField()
-    address = models.TextField()
+from jsonfield import JSONField
 
 
 class Unit(models.Model):
@@ -27,7 +18,14 @@ class Unit(models.Model):
     user = models.ForeignKey(User)
     name = models.CharField(max_length=255, blank=False, null=False)
     unit_type = models.CharField(max_length=31, choices=UNIT_TYPES, blank=False, null=False)
-    location = models.ForeignKey(Location)
+
+    # location info
+    lat = models.IntegerField()
+    lng = models.IntegerField()
+    address = models.TextField()
+
+    # the info field contains information according to the type of the building
+    info = JSONField(default={})
 
 
 class Connection(models.Model):

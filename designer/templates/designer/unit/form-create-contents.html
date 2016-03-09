@@ -1,0 +1,36 @@
+    {% load designer_tags %}
+
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-aqua">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"><i class="fa fa-plus"></i> New {{ unit_type_label }}</h4>
+            </div>
+            <div class="modal-body">
+
+                <form role="form">{% csrf_token %}
+                    {{ form.non_field_errors }}
+
+                    <div class="box-body">
+                        {% for field in form.hidden_fields %}
+                            {{ field }}
+                        {% endfor %}
+
+                        {% for field in form.visible_fields %}
+                            <div class="form-group">
+                                {{ field.label_tag }}
+                                {{ field|add_class:"form-control" }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <!-- /.box-body -->
+
+                    <div class="box-footer">
+                        <button type="submit" class="btn btn-primary pull-right">Create</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>

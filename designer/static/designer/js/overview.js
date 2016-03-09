@@ -11,10 +11,9 @@ $(function() {
             this.overlay = new google.maps.OverlayView();
             this.overlay.draw = function() {};
             this.overlay.setMap(this.map);
-            console.log(this.map);
         },
 
-        place_marker: function(location, unit_type) {
+        place_marker: function(unit_type, ll) {
             var that = this;
             var icon_path;
 
@@ -32,7 +31,7 @@ $(function() {
             }
 
             var marker = new google.maps.Marker({
-                position: location,
+                position: ll,
                 map: that.map,
                 icon: {
                     path: icon_path,
@@ -48,10 +47,24 @@ $(function() {
             });
         },
 
-        show_create_form: function() {
+        show_create_form: function(unit_type, ll) {
+            // show the dialog
             var cf = $('#unit-create-modal');
-            cf.find('.modal-title').html('New unit');
+            cf.html(LOADING_UNIT_TEMPLATE);
             cf.modal('show');
+
+            // populate with the form
+            $.ajax({
+                url: '/designer/unit-create/' + unit_type + '/',
+                method: 'GET',
+                data: {
+                    lat: ll.lat(),
+                    lng: ll.lng()
+                },
+                success: function(data) {
+                    cf.html(data);
+                }
+            });
         }
     };
 
@@ -62,6 +75,8 @@ $(function() {
     $(".add-unit").draggable({
         helper: 'clone',
         stop: function(e, ui) {
+            var unit_type = $(e.target).data('unit_type');
+
             var map_offset = $(OverviewDesigner.map.getDiv()).offset();
             var point = new google.maps.Point(
                 ui.offset.left - map_offset.left + (ui.helper.width() / 2),
@@ -69,10 +84,10 @@ $(function() {
             );
 
             var ll = OverviewDesigner.overlay.getProjection().fromContainerPixelToLatLng(point);
-            OverviewDesigner.place_marker(ll, $(e.target).data('unit_type'));
+            OverviewDesigner.place_marker(unit_type, ll);
 
             // show the form for the new unit
-            OverviewDesigner.show_create_form();
+            OverviewDesigner.show_create_form(unit_type, ll);
 
         }
     });

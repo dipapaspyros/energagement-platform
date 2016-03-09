@@ -126,3 +126,5 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+GEOCODING_API_KEY = 'AIzaSyA_l5f4P4RQCz4A6oBrLcd-K1E4gSemOog'

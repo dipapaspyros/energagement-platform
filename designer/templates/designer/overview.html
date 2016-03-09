@@ -19,12 +19,7 @@
         </div>
     </div>
     <div id="designer-overview-map-container">
-        <div class="centered">
-            <div class="gen-loading-lg">
-                <i class="fa fa-4x fa-spin fa-spinner"></i> <br />
-                Please wait
-            </div>
-        </div>
+        {% include "designer/util/loader.html" %}
     </div>
 
     {% include 'designer/unit/form-create.html' %}
@@ -34,5 +29,8 @@
     <script src="{% static 'designer/js/fontawesome-markers.min.js' %}"></script>
     <script src="https://maps.googleapis.com/maps/api/js"></script>
 
+    <script>
+        LOADING_UNIT_TEMPLATE = '{{ LOADING_UNIT_TEMPLATE }}';
+    </script>
     <script src="{% static 'designer/js/overview.js' %}"></script>
 {% endblock %}

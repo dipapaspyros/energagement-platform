@@ -1,0 +1,14 @@
+    {% load designer_tags %}
+
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-aqua">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"><i class="fa fa-plus"></i> New {{ unit_type_label }}</h4>
+            </div>
+            <div class="modal-body">
+                {% include "designer/util/loader.html" %}
+            </div>
+        </div>
+    </div>
