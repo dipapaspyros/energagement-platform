@@ -20,8 +20,8 @@ class Unit(models.Model):
     unit_type = models.CharField(max_length=31, choices=UNIT_TYPES, blank=False, null=False)
 
     # location info
-    lat = models.IntegerField()
-    lng = models.IntegerField()
+    lat = models.FloatField()
+    lng = models.FloatField()
     address = models.TextField()
 
     # the info field contains information according to the type of the building

@@ -16,8 +16,8 @@ unit_icon_classes = {
     'CHARGING_STATION': 'fa-bolt',
 }
 
-LOADING_UNIT_TEMPLATE = mark_safe(loader.get_template('designer/unit/form-create-loading.html').render(Context({}))\
-    .replace('\n', '').replace("'", "\\'"))
+LOADING_UNIT_TEMPLATE = mark_safe(loader.get_template('designer/unit/form-create-loading.html').
+                                  render(Context({})).replace('\n', '').replace("'", "\\'"))
 
 
 def get_unit_types_info():
@@ -59,7 +59,7 @@ def unit_create_form(request, unit_type):
         if rg:
             initial['address'] = rg[0]['formatted_address']
 
-    form = UnitForm(unit_type=unit_type, initial=initial)
+    form = UnitForm(initial=initial, unit_type=unit_type)
 
     return render(request, 'designer/unit/form-create-contents.html', {
         'unit_type': unit_type,
@@ -74,13 +74,13 @@ def unit_create(request):
         return HttpResponse('Only POST method is accepted', status=400)
 
     try:
-        unit_type = request.POST('unit_type')
+        unit_type = request.POST.get('unit_type')
         unit_type_label = [ut[1] for ut in UNIT_TYPES if ut[0] == unit_type][0]
     except IndexError:
         return HttpResponse('Invalid `unit_type`', status=400)
 
-    form = UnitForm(unit_type=unit_type)
-    if form.valid():
+    form = UnitForm(request.POST, unit_type=unit_type)
+    if form.is_valid():
         # save the new unit & return empty response
         unit = form.save(commit=False)
         unit.user = request.user
@@ -94,7 +94,8 @@ def unit_create(request):
             'unit_type_label': unit_type_label,
             'form': form,
         })
-        response = mark_safe(loader.get_template('designer/unit/form-create-contents.html', c))
+
+        response = mark_safe(loader.get_template('designer/unit/form-create-contents.html').render(c))
         return HttpResponse(response, status=400)
 
 

@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+
+{% block title %}Sign In{% endblock %}
+
+{% block content %}
+<section class="content">
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-6">
+            <div class="box {% if form.errors %}box-danger{% else %}box-primary{% endif %}">
+                <div class="box-header with-border">
+                    <h1 class="page-title">Sign In</h1>
+
+                    <p>Give your credentials to sign in, or <a href="{% url 'account_signup' %}">Sign up</a> to create an account if you don't
+                        have one.</p>
+
+                    <form id="form-login" role="form" method="post" action="{% url 'account_login' %}">
+                        {% csrf_token %}
+
+                        {% if redirect_field_value %}
+                            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+                        {% endif %}
+
+                        <div class="box-body">
+                            {% if form.non_field_errors %}
+                                <div class="form-group has-error">
+                                    {% for e in form.non_field_errors %}
+                                        <label class="control-label">
+                                            <i class="fa fa-times-circle-o"></i> {{ e }}
+
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            <div class="form-field">
+                                <div class="error">{{ form.login.errors }}</div>
+                                <label for="user_login">Username</label>
+                                <input id="user_login" class="form-control" type="text" name="login" required="true">
+                            </div>
+                            <!-- .form-field -->
+
+                            <div class="form-field">
+                                <div class="error">{{ form.password.errors }}</div>
+                                <label for="user_password">Password:</label>
+                                <input id="user_password" class="form-control" type="password" name="password" required="true">
+                            </div>
+                            <!-- .form-field -->
+                        </div>
+
+                        <div class="box-footer">
+                            <button type="submit" class="btn btn-primary">Sign in</button>
+                            <a href="{% url 'account_reset_password' %}" class="pull-right">Forgot your password?</a>
+                        </div>
+                        <!-- .clearfix -->
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3"></div>
+    </div>
+</section>
+{% endblock %}
+

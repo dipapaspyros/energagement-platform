@@ -20,13 +20,17 @@ class UnitForm(forms.ModelForm):
         model = Unit
         exclude = ['user', 'location', ]
 
-    def __init__(self, unit_type, *args, **kwargs):
-        super(UnitForm, self).__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        unit_type = kwargs.pop('unit_type', None)
         self.extra_fields = []
+
+        super(UnitForm, self).__init__(*args, **kwargs)
 
         # make several fields non-visible
         for fk in ['lat', 'lng', 'address', 'info', 'unit_type']:
             self.fields[fk].widget = forms.HiddenInput()
+
+        self.fields['info'].required = False
 
         # add the appropriate fields
         for k in extra_unit_fields.keys():
@@ -39,8 +43,8 @@ class UnitForm(forms.ModelForm):
         data = super(UnitForm, self).clean()
 
         # gather info fields
-        self.fields['info'] = {}
+        data['info'] = {}
         for fk in self.extra_fields:
-            self.fields['info'][fk] = data.pop(fk)
+            data['info'][fk] = data.pop(fk)
 
         return data

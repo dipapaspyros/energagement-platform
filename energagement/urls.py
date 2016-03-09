@@ -24,6 +24,9 @@ urlpatterns = [
     url(r'^$', views.welcome, name='welcome'),
     url(r'^help/$', views.help, name='help'),
 
+    # authentication
+    url(r'^accounts/', include('allauth.urls')),
+
     # designer
     url(r'^designer/', include('designer.urls')),
 ]

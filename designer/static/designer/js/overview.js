@@ -93,8 +93,9 @@ $(function() {
     });
 
     function async_form_submit(form, on_success, on_error) {
-        form.find('input[type="submit"]').attr('disabled', 'disabled');
-        DataLoader.set_page_loading();
+        var submit = form.find('input[type="submit"]')
+        submit.attr('disabled', 'disabled');
+        submit.addClass('disabled');
 
         // get method & form data
         var data;
@@ -107,7 +108,6 @@ $(function() {
             data = new FormData(form[0]);
         }
 
-        Analytics.on(url, 'pre', 'success');
         // make the request
         $.ajax({
             url   : url,
@@ -118,6 +118,9 @@ $(function() {
             contentType: false,
             processData: false,
             success: function(data, textStatus, request){
+                submit.attr('disabled', undefined);
+                submit.removeClass('disabled');
+
                 on_success(data, textStatus, request)
             },
             error: function(xhr, status, error) {
@@ -127,7 +130,7 @@ $(function() {
     }
 
     // asynchronous unit create view
-    $(document).on('submit', '#unit-create-modal form',function(e){
+    $(document).on('submit', '#unit-create-modal form',function(e) {
         var form = $(this);
         var cf = $('#unit-create-modal');
 
@@ -141,7 +144,7 @@ $(function() {
         };
 
         // submit the form
-        OnOrfiumFormSubmit(form, on_success, on_error);
+        async_form_submit(form, on_success, on_error);
 
         e.preventDefault();
         return false;

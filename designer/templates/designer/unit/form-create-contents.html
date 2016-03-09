@@ -9,7 +9,8 @@
             </div>
             <div class="modal-body">
 
-                <form role="form" method="POST" action="{% url 'unit-create' %}">{% csrf_token %}
+                <form role="form" method="POST" action="{% url 'unit-create' %}" onsubmit="return false">
+                    {% csrf_token %}
                     {{ form.non_field_errors }}
 
                     <div class="box-body">
@@ -21,6 +22,9 @@
                             <div class="form-group">
                                 {{ field.label_tag }}
                                 {{ field|add_class:"form-control" }}
+                                {% if field.errors %}
+                                    {{ field.errors }}
+                                {% endif %}
                             </div>
                         {% endfor %}
                     </div>
