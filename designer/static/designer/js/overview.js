@@ -1,6 +1,8 @@
 $(function() {
     OverviewDesigner = {
+        units: [],
 
+        /* Create the map, add an overlay & load all units */
         init: function() {
             var container = document.getElementById('designer-overview-map-container');
             this.map = new google.maps.Map(container, {
@@ -11,8 +13,18 @@ $(function() {
             this.overlay = new google.maps.OverlayView();
             this.overlay.draw = function() {};
             this.overlay.setMap(this.map);
+
+            //load existing units
+            this.load_units();
         },
 
+        /* Given an existing unit add its corresponding marker */
+        place_existing_marker: function(unit) {
+            var point = new google.maps.LatLng(unit.location.lat, unit.location.lng);
+            return this.place_marker(unit.unit_type, point);
+        },
+
+        /* Given a unit type & an overlay add a new marker */
         place_marker: function(unit_type, ll) {
             var that = this;
             var icon_path;
@@ -30,7 +42,7 @@ $(function() {
                 icon_path = fontawesome.markers.QUESTION;
             }
 
-            var marker = new google.maps.Marker({
+            return new google.maps.Marker({
                 position: ll,
                 map: that.map,
                 icon: {
@@ -47,6 +59,40 @@ $(function() {
             });
         },
 
+        /* Get all units, save them & add their markers */
+        load_units: function() {
+            // get list of user's units
+            var that = this;
+            $.ajax({
+                url: '/designer/api/units/all/',
+                method: 'GET',
+                success: function(units) {
+                    that.units = units;
+
+                    // add units to map
+                    for (var i=0; i<units.length; i++) {
+                        that.units[i].marker = that.place_existing_marker(units[i]);
+                    }
+
+                    // move the map to the correct point/zoom level
+                    that.map.fitBounds(that.get_all_markers().reduce(function(bounds, marker) {
+                        return bounds.extend(marker.getPosition());
+                    }, new google.maps.LatLngBounds()));
+                }
+            });
+        },
+
+        /* Returns a list with all markers */
+        get_all_markers: function() {
+            var markers = [];
+            for (var i=0; i<this.units.length; i++) {
+                markers.push(this.units[i].marker);
+            }
+
+            return markers;
+        },
+
+        /* Show the correct create form for a new unit */
         show_create_form: function(unit_type, ll) {
             // show the dialog
             var cf = $('#unit-create-modal');
@@ -54,6 +100,7 @@ $(function() {
             cf.modal('show');
 
             // populate with the form
+            var that = this;
             $.ajax({
                 url: '/designer/unit-create/' + unit_type + '/',
                 method: 'GET',
@@ -62,7 +109,7 @@ $(function() {
                     lng: ll.lng()
                 },
                 success: function(data) {
-                    cf.html(data);
+                    cf.html(data)
                 }
             });
         }
@@ -75,20 +122,20 @@ $(function() {
     $(".add-unit").draggable({
         helper: 'clone',
         stop: function(e, ui) {
+            var od = OverviewDesigner;
             var unit_type = $(e.target).data('unit_type');
 
-            var map_offset = $(OverviewDesigner.map.getDiv()).offset();
+            var map_offset = $(od.map.getDiv()).offset();
             var point = new google.maps.Point(
                 ui.offset.left - map_offset.left + (ui.helper.width() / 2),
                 ui.offset.top - map_offset.top + ui.helper.height()
             );
 
-            var ll = OverviewDesigner.overlay.getProjection().fromContainerPixelToLatLng(point);
-            OverviewDesigner.place_marker(unit_type, ll);
+            var ll = od.overlay.getProjection().fromContainerPixelToLatLng(point);
+            od.orphan_marker = od.place_marker(unit_type, ll);
 
             // show the form for the new unit
-            OverviewDesigner.show_create_form(unit_type, ll);
-
+            od.show_create_form(unit_type, ll);
         }
     });
 
@@ -130,13 +177,18 @@ $(function() {
     }
 
     // asynchronous unit create view
-    $(document).on('submit', '#unit-create-modal form',function(e) {
+    $(document).on('submit', '#unit-create-modal form', function(e) {
         var form = $(this);
         var cf = $('#unit-create-modal');
 
         // define the callbacks
-        var on_success = function(data, textStatus, request) {
+        var on_success = function(unit, textStatus, request) {
             cf.modal('hide');
+
+            // add the unit to the designer & attach the marker
+            unit.marker = OverviewDesigner.orphan_marker;
+            OverviewDesigner.units.push(unit);
+            OverviewDesigner.orphan_marker = undefined;
         };
 
         var on_error = function(xhr, status, error) {

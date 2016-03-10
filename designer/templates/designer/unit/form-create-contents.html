@@ -22,9 +22,9 @@
                             <div class="form-group">
                                 {{ field.label_tag }}
                                 {{ field|add_class:"form-control" }}
-                                {% if field.errors %}
-                                    {{ field.errors }}
-                                {% endif %}
+                                {% with errors=field.errors %}
+                                    {% include "util/errors.html" %}
+                                {% endwith %}
                             </div>
                         {% endfor %}
                     </div>

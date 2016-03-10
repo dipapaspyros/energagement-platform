@@ -1,12 +1,15 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from django.middleware import csrf
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
 
 from energagement.settings import GEOCODING_API_KEY
 from structure.forms import UnitForm
-from structure.lists import UNIT_TYPES
+from structure.lists import UNIT_TYPES, get_tupple_label
 from googlemaps import Client as GoogleMaps
 from django.template import loader, Context
+
+from structure.models import Unit
 
 gmaps = GoogleMaps(GEOCODING_API_KEY)
 
@@ -32,6 +35,7 @@ def get_unit_types_info():
 def overview(request):
     ctx = {
         'unit_types': get_unit_types_info(),
+        'units': Unit.objects.filter(user=request.user),
         'LOADING_UNIT_TEMPLATE': LOADING_UNIT_TEMPLATE,
     }
 
@@ -55,7 +59,7 @@ def unit_create_form(request, unit_type):
         initial['lng'] = float(request.GET.get('lng'))
 
         # use Google Geocoding API to get the address
-        rg = gmaps.reverse_geocode((initial['lat'], initial['lng']))
+        rg = gmaps.reverse_geocode((initial['lat'], initial['lng']), language='el')
         if rg:
             initial['address'] = rg[0]['formatted_address']
 
@@ -75,7 +79,7 @@ def unit_create(request):
 
     try:
         unit_type = request.POST.get('unit_type')
-        unit_type_label = [ut[1] for ut in UNIT_TYPES if ut[0] == unit_type][0]
+        unit_type_label = get_tupple_label(UNIT_TYPES, unit_type)
     except IndexError:
         return HttpResponse('Invalid `unit_type`', status=400)
 
@@ -86,13 +90,14 @@ def unit_create(request):
         unit.user = request.user
         unit.save()
 
-        return HttpResponse('')
+        return JsonResponse(unit.to_dict(), safe=False)
     else:
         # return form with errors
         c = Context({
             'unit_type': unit_type,
             'unit_type_label': unit_type_label,
             'form': form,
+            'csrf_token': csrf.get_token(request),
         })
 
         response = mark_safe(loader.get_template('designer/unit/form-create-contents.html').render(c))

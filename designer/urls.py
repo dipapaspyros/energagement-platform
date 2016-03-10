@@ -14,5 +14,5 @@ urlpatterns = patterns('',
                        url(r'^unit-create/(?P<unit_type>.*)/$', views.unit_create_form, name='unit-create-form'),
 
                        # api
-                       # nothing yet
+                       url(r'^api/units/all/$', api.unit_list, name='unit-list'),
                        )

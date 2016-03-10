@@ -45,6 +45,9 @@ class UnitForm(forms.ModelForm):
         # gather info fields
         data['info'] = {}
         for fk in self.extra_fields:
-            data['info'][fk] = data.pop(fk)
+            try:
+                data['info'][fk] = data.pop(fk)
+            except KeyError:
+                pass  # an error has already been added
 
         return data

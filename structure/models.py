@@ -5,7 +5,7 @@ import uuid as uuid
 from django.contrib.auth.models import User
 from django.db import models
 
-from .lists import UNIT_TYPES, SUPPORTED_CONNECTION_TYPES
+from .lists import UNIT_TYPES, SUPPORTED_CONNECTION_TYPES, get_tupple_label
 from jsonfield import JSONField
 
 
@@ -26,6 +26,26 @@ class Unit(models.Model):
 
     # the info field contains information according to the type of the building
     info = JSONField(default={})
+
+    def __unicode__(self):
+        return '%s (%s)' % (self.name, get_tupple_label(UNIT_TYPES, self.unit_type))
+
+    def to_dict(self):
+        result = {
+            'id': self.id,
+            'name': self.name,
+            'unit_type': self.unit_type,
+            'location': {
+                'lat': self.lat,
+                'lng': self.lng,
+                'address': self.address,
+            },
+        }
+
+        for key in self.info.keys():
+            result[key] = self.info[key]
+
+        return result
 
 
 class Connection(models.Model):
