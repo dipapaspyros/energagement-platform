@@ -1,0 +1,10 @@
+{% if errors %}
+    <div class="form-group has-error">
+        {% for e in errors %}
+            <label class="control-label">
+                <i class="fa fa-times-circle-o"></i> {{ e }}
+
+            </label>
+        {% endfor %}
+    </div>
+{% endif %}

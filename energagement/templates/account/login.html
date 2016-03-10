@@ -11,7 +11,7 @@
                 <div class="box-header with-border">
                     <h1 class="page-title">Sign In</h1>
 
-                    <p>Give your credentials to sign in, or <a href="{% url 'account_signup' %}">Sign up</a> to create an account if you don't
+                    <p>Give your credentials to sign in, or <a href="{% url 'account_signup' %}">sign up</a> to create an account if you don't
                         have one.</p>
 
                     <form id="form-login" role="form" method="post" action="{% url 'account_login' %}">
@@ -22,28 +22,25 @@
                         {% endif %}
 
                         <div class="box-body">
-                            {% if form.non_field_errors %}
-                                <div class="form-group has-error">
-                                    {% for e in form.non_field_errors %}
-                                        <label class="control-label">
-                                            <i class="fa fa-times-circle-o"></i> {{ e }}
-
-                                        </label>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
+                            {% with errors=form.non_field_errors %}
+                                {% include "util/errors.html" %}
+                            {% endwith %}
 
                             <div class="form-field">
-                                <div class="error">{{ form.login.errors }}</div>
                                 <label for="user_login">Username</label>
-                                <input id="user_login" class="form-control" type="text" name="login" required="true">
+                                <input id="user_login" class="form-control" type="text" name="login" required="true" value="{{ form.login.value|default_if_none:"" }}">
+                                {% with errors=form.login.errors %}
+                                    {% include "util/errors.html" %}
+                                {% endwith %}
                             </div>
                             <!-- .form-field -->
 
                             <div class="form-field">
-                                <div class="error">{{ form.password.errors }}</div>
                                 <label for="user_password">Password:</label>
                                 <input id="user_password" class="form-control" type="password" name="password" required="true">
+                                {% with errors=form.password.errors %}
+                                    {% include "util/errors.html" %}
+                                {% endwith %}
                             </div>
                             <!-- .form-field -->
                         </div>
