@@ -10,7 +10,7 @@ class AuthorizationMiddleware(object):
             return None
 
         # except authentication pages
-        if '/account/' in request.path:
+        if '/accounts/' in request.path:
             return None
 
         # redirect to login

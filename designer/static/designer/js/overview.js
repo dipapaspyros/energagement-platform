@@ -21,7 +21,10 @@ $(function() {
         /* Given an existing unit add its corresponding marker */
         place_existing_marker: function(unit) {
             var point = new google.maps.LatLng(unit.location.lat, unit.location.lng);
-            return this.place_marker(unit.unit_type, point);
+            unit.marker = this.place_marker(unit.unit_type, point);
+            unit.marker.infobox = this.add_infobox(unit);
+
+            return unit.marker
         },
 
         /* Given a unit type & an overlay add a new marker */
@@ -42,21 +45,52 @@ $(function() {
                 icon_path = fontawesome.markers.QUESTION;
             }
 
-            return new google.maps.Marker({
+            var marker = new google.maps.Marker({
                 position: ll,
                 map: that.map,
                 icon: {
                     path: icon_path,
                     scale: 0.5,
                     strokeWeight: 0.2,
-                    strokeColor: '#777',
+                    strokeColor: '#ff851b',
                     strokeOpacity: 1,
-                    fillColor: '#777',
+                    fillColor: '#ff851b',
                     fillOpacity: 1,
                 },
                 clickable: true,
                 draggable: true
             });
+
+            return marker
+        },
+
+        /* Adds an infobox to the unit's marker */
+        add_infobox: function(unit) {
+            var infobox_content = $('<div class="marker-infobox"><h4>' + unit.name  + '</h4><p>' + unit.unit_type_label + '<br />' + unit.location.address + '</p></div>')
+            var infobox = new InfoBox({
+                 content: infobox_content.get(0),
+                 disableAutoPan: false,
+                 maxWidth: 150,
+                 pixelOffset: new google.maps.Size(-140, 0),
+                 zIndex: null,
+                 boxStyle: {
+                    background: '#fff',
+                    width: "280px"
+                },
+                closeBoxMargin: "2px",
+                infoBoxClearance: new google.maps.Size(1, 1)
+            });
+
+            var that = this;
+            google.maps.event.addListener(unit.marker, 'click', function() {
+                var markers = that.get_all_markers();
+                for (var i=0; i<markers.length; i++) {
+                    markers[i].infobox.close();
+                }
+                infobox.open(that.map, this);
+            });
+
+            return infobox;
         },
 
         /* Get all units, save them & add their markers */
@@ -186,7 +220,7 @@ $(function() {
             cf.modal('hide');
 
             // add the unit to the designer & attach the marker
-            unit.marker = OverviewDesigner.orphan_marker;
+            OverviewDesigner.orphan_marker;
             OverviewDesigner.units.push(unit);
             OverviewDesigner.orphan_marker = undefined;
         };

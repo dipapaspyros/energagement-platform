@@ -35,6 +35,7 @@ class Unit(models.Model):
             'id': self.id,
             'name': self.name,
             'unit_type': self.unit_type,
+            'unit_type_label': get_tupple_label(UNIT_TYPES, self.unit_type),
             'location': {
                 'lat': self.lat,
                 'lng': self.lng,
