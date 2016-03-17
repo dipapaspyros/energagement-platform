@@ -60,13 +60,3 @@ class Connection(models.Model):
     connection_type = models.CharField(max_length=31, choices=SUPPORTED_CONNECTION_TYPES, blank=False, null=False)
     connection_info = models.TextField(blank=False, null=False)
 
-
-class Region(models.Model):
-    """
-    A physical part of a Unit
-    Can be either directly under a Unit or under another Region
-    """
-    id = models.UUIDField(unique=True, primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=255, blank=False, null=False)
-    parent_region = models.ForeignKey('self')
-    parent_unit = models.ForeignKey(Unit)
